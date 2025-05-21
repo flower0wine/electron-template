@@ -1,0 +1,124 @@
+name: Build Application
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: '选择构建平台'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - windows
+          - linux
+          - mac
+
+jobs:
+  build-windows:
+    if: github.event.inputs.platform == 'all' || github.event.inputs.platform == 'windows'
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+        env:
+          npm_config_platform: win32
+          npm_config_arch: ${{ matrix.arch }}
+          
+      - name: Build Windows
+        run: pnpm run build:win:${{ matrix.arch }}
+        
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-vite-win-${{ matrix.arch }}
+          path: dist/*
+
+  build-linux:
+    if: github.event.inputs.platform == 'all' || github.event.inputs.platform == 'linux'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x64]
+        include:
+          - arch: x64
+            platform: linux-x64
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+        env:
+          npm_config_platform: linux
+          npm_config_arch: ${{ matrix.arch }}
+          
+      - name: Build Linux
+        run: pnpm run build:linux:${{ matrix.arch }}
+        
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-vite-linux-${{ matrix.arch }}
+          path: dist/*
+
+  build-mac:
+    if: github.event.inputs.platform == 'all' || github.event.inputs.platform == 'mac'
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [x64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+        env:
+          npm_config_platform: darwin
+          npm_config_arch: ${{ matrix.arch }}
+          
+      - name: Build Mac
+        run: pnpm run build:mac:${{ matrix.arch }}
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-vite-mac-${{ matrix.arch }}
+          path: dist/*

@@ -1,0 +1,104 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflow_id:
+        description: 'Build workflow run ID to use for artifacts'
+        required: true
+        type: string
+      prerelease:
+        description: 'Is this a prerelease?'
+        required: true
+        type: boolean
+        default: false
+      use_existing_release:
+        description: '是否使用已存在的 release?'
+        required: true
+        type: boolean
+        default: false
+      release_tag:
+        description: '如果使用已存在的 release，请提供 tag 名称 (如: v1.0.0)'
+        required: false
+        type: string
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts from workflow
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow_conclusion: success
+          run_id: ${{ github.event.inputs.workflow_id }}
+          path: artifacts
+
+      - name: List downloaded artifacts
+        run: find artifacts -type f | sort
+
+      - name: Get version number
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Found version: $VERSION"
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release_assets
+
+          # Process Windows artifacts
+          for arch in x64 arm64; do
+            if [ -d "artifacts/electron-vite-win-$arch" ]; then
+              cp artifacts/electron-vite-win-$arch/*.exe release_assets/ 2>/dev/null || true
+              cp artifacts/electron-vite-win-$arch/*.msi release_assets/ 2>/dev/null || true
+              cp artifacts/electron-vite-win-$arch/*.zip release_assets/ 2>/dev/null || true
+            fi
+          done
+
+          # Process Linux artifacts
+          for arch in x64 arm64; do
+            if [ -d "artifacts/electron-vite-linux-$arch" ]; then
+              cp artifacts/electron-vite-linux-$arch/*.AppImage release_assets/ 2>/dev/null || true
+              cp artifacts/electron-vite-linux-$arch/*.deb release_assets/ 2>/dev/null || true
+              cp artifacts/electron-vite-linux-$arch/*.rpm release_assets/ 2>/dev/null || true
+              cp artifacts/electron-vite-linux-$arch/*.tar.gz release_assets/ 2>/dev/null || true
+            fi
+          done
+
+          # Process Mac artifacts
+          for arch in x64 arm64; do
+            if [ -d "artifacts/electron-vite-mac-$arch" ]; then
+              cp artifacts/electron-vite-mac-$arch/*.dmg release_assets/ 2>/dev/null || true
+              cp artifacts/electron-vite-mac-$arch/*.zip release_assets/ 2>/dev/null || true
+            fi
+          done
+
+          ls -la release_assets/
+
+      - name: Create New Release
+        if: ${{ github.event.inputs.use_existing_release != 'true' }}
+        id: create_new_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Electron Vite ${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+          files: |
+            release_assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+      - name: Upload To Existing Release
+        if: ${{ github.event.inputs.use_existing_release == 'true' }}
+        id: upload_existing_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.release_tag }}
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease }}
+          files: |
+            release_assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
