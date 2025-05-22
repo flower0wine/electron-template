@@ -2,13 +2,26 @@ appId: com.electron.app
 productName: electron-vite
 directories:
   buildResources: build
+  output: dist
 files:
   - '!**/.vscode/*'
   - '!src/*'
+  - '!docs/*'
+  - '!keys/*'
+  - '!scripts/*'
+  - '!.github/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
-  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!electron-builder.yml'
+  - '!electron-builder-macx64.yml'
+  - '!test/*'
+  - '!*.config.ts'
+  - '!*.config.js'
+  - '!**/{LICENSE,LICENSE.txt,*.LICENSE.txt,NOTICE.txt,README.md,CHANGELOG.md,CONTRIBUTING.md,CONTRIBUTING.zh.md,README.zh.md,README.jp.md}'
+  - '!**/{.DS_Store,Thumbs.db}'
+  - '!*.md'
 asarUnpack:
   - resources/**
 win:
@@ -28,15 +41,43 @@ mac:
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
   sign: false
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+    - target: zip
+      arch:
+        - arm64
+        - x64
+  artifactName: ${name}-${version}-mac-${arch}.${ext}
 dmg:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name}-${version}-mac-${arch}.${ext}
 linux:
   target:
-    - AppImage
+    - target: AppImage
+      arch:
+        - arm64
+        - x64
+    - target: deb
+      arch:
+        - arm64
+        - x64
+    - target: rpm
+      arch:
+        - arm64
+        - x64
+    - target: snap
+      arch:
+        - arm64
+        - x64
+    - target: tar.gz
+      arch:
+        - arm64
+        - x64
   maintainer: electronjs.org
   category: Utility
-appImage:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name}-${version}-linux-${arch}.${ext}
 npmRebuild: false
 publish:
   provider: generic

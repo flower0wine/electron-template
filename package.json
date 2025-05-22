@@ -17,14 +17,13 @@
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
-    "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux",
-
     "build:win:x64": "npm run build && electron-builder --win --x64",
     "build:win:arm64": "npm run build && electron-builder --win --arm64",
-    "build:mac:arm64": "npm run build && electron-builder --mac --arm64",
-    "build:mac:x64": "npm run build && electron-builder -c electron-builder-macx64.yml --mac --x64 ",
-    "build:linux:x64": "npm run build && electron-builder --linux --x64",
+    "build:mac": "electron-vite build && electron-builder --mac",
+    "build:mac:x64": "npm run build && electron-builder -c electron-builder-macx64.yml --mac --x64 --config.mac.identity=null",
+    "build:mac:arm64": "npm run build && electron-builder --mac --arm64 --config.mac.identity=null",
+    "build:linux": "electron-vite build && electron-builder --linux",
+    "build:linux:x64": "npm run build && electron-builder --linux --x64 --dir",
     "build:linux:arm64": "npm run build && electron-builder --linux --arm64"
   },
   "dependencies": {

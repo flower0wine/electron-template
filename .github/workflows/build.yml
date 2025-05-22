@@ -54,10 +54,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x64]
+        arch: [x64, arm64]
         include:
           - arch: x64
             platform: linux-x64
+          - arch: arm64
+            platform: linux-arm64
     steps:
       - uses: actions/checkout@v4
       
@@ -94,6 +96,8 @@ jobs:
         arch: [x64, arm64]
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: .
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -110,13 +114,16 @@ jobs:
         env:
           npm_config_platform: darwin
           npm_config_arch: ${{ matrix.arch }}
+
+      - name: Install Node Runtime
+        run: pnpm run installRuntime:mac:${{ matrix.arch }}
+
+      - name: Install Sharp
+        run: pnpm i --cpu=${{ matrix.arch }} --os=darwin sharp
           
       - name: Build Mac
         run: pnpm run build:mac:${{ matrix.arch }}
-        env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          
+        
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
