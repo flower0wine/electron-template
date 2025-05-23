@@ -59,7 +59,7 @@ pnpm build:linux
 
 ### 跨平台构建
 
-使用 Docker 可以在任何平台上构建各种目标平台的安装包。以下是在 Windows 上使用 Docker 进行跨平台构建的命令：
+如果使用的是 MacOS，可以为各平台构建安装包。如果使用的是 Windows，可能无法为 MacOS、Linux 平台构建安装包，使用 Docker 可以在 Windows 平台上构建各平台的安装包。以下是在 Windows 上使用 Docker 进行跨平台构建的命令：
 
 #### Windows 构建命令
 
