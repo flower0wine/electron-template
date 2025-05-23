@@ -57,10 +57,255 @@ pnpm build:mac
 pnpm build:linux
 ```
 
+### 跨平台构建
+
+使用 Docker 可以在任何平台上构建各种目标平台的安装包。以下是在 Windows 上使用 Docker 进行跨平台构建的命令：
+
+#### Windows 构建命令
+
+##### Windows x64 (64位) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules:/project/node_modules `
+  electronuserland/builder:wine `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y wine && pnpm install && pnpm run build && pnpm exec electron-builder --win nsis portable zip --x64"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules:/project/node_modules ^
+  electronuserland/builder:wine ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y wine && pnpm install && pnpm run build && pnpm exec electron-builder --win nsis portable zip --x64"
+```
+
+##### Windows ia32 (32位) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-ia32:/project/node_modules `
+  electronuserland/builder:wine `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y wine && pnpm install && pnpm run build && pnpm exec electron-builder --win nsis portable zip --ia32"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-ia32:/project/node_modules ^
+  electronuserland/builder:wine ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y wine && pnpm install && pnpm run build && pnpm exec electron-builder --win nsis portable zip --ia32"
+```
+
+##### Windows 多架构构建 (同时构建32位和64位)
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-both:/project/node_modules `
+  electronuserland/builder:wine `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y wine && pnpm install && pnpm run build && pnpm exec electron-builder --win nsis portable zip --ia32 --x64"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-both:/project/node_modules ^
+  electronuserland/builder:wine ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y wine && pnpm install && pnpm run build && pnpm exec electron-builder --win nsis portable zip --ia32 --x64"
+```
+
+#### Linux 构建命令
+
+##### Linux x64 (64位) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-linux-x64:/project/node_modules `
+  electronuserland/builder:latest `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot && pnpm install && pnpm run build && pnpm exec electron-builder --linux AppImage deb tar.gz --x64"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-linux-x64:/project/node_modules ^
+  electronuserland/builder:latest ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot && pnpm install && pnpm run build && pnpm exec electron-builder --linux AppImage deb tar.gz --x64"
+```
+
+##### Linux arm64 (ARM 64位) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-linux-arm64:/project/node_modules `
+  electronuserland/builder:latest `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot && pnpm install && pnpm run build && pnpm exec electron-builder --linux AppImage deb tar.gz --arm64"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-linux-arm64:/project/node_modules ^
+  electronuserland/builder:latest ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot && pnpm install && pnpm run build && pnpm exec electron-builder --linux AppImage deb tar.gz --arm64"
+```
+
+##### Linux armv7l (ARM 32位) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-linux-armv7l:/project/node_modules `
+  electronuserland/builder:latest `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot && pnpm install && pnpm run build && pnpm exec electron-builder --linux AppImage deb tar.gz --armv7l"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-linux-armv7l:/project/node_modules ^
+  electronuserland/builder:latest ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot && pnpm install && pnpm run build && pnpm exec electron-builder --linux AppImage deb tar.gz --armv7l"
+```
+
+##### Linux 多架构构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-linux-multi:/project/node_modules `
+  electronuserland/builder:latest `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot && pnpm install && pnpm run build && pnpm exec electron-builder --linux AppImage deb tar.gz --x64 --arm64"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-linux-multi:/project/node_modules ^
+  electronuserland/builder:latest ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot && pnpm install && pnpm run build && pnpm exec electron-builder --linux AppImage deb tar.gz --x64 --arm64"
+```
+
+#### macOS 构建命令
+
+> **注意**：
+> 1. 在非macOS系统上构建的macOS应用不会被签名，仅用于测试目的。正式发布需要在macOS系统上构建并签名。
+> 2. macOS DMG格式构建需要`dmg-license`模块，命令中已添加安装步骤。
+> 3. 如果不需要DMG格式，可以将`dmg`替换为其他格式如`pkg`或只保留`zip`。
+> 4. 在Docker中构建macOS应用可能会遇到macOS特定依赖问题。命令中添加了配置项来禁用macOS的公证和验证步骤。
+> 5. 即使在 Docker 当中也无法构建 dmg、pkg 安装包，zip 是可以的，但是解压之后体积过大。
+
+##### macOS amd64 (64位Intel) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-mac-amd64:/project/node_modules `
+  electronuserland/builder:latest `
+  /bin/bash -c "cd /project && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder --mac zip --x64 -c.mac.notarize=false -c.mac.identity=null"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-mac-amd64:/project/node_modules ^
+  electronuserland/builder:latest ^
+  /bin/bash -c "cd /project && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder --mac zip --x64 -c.mac.notarize=false -c.mac.identity=null"
+```
+
+##### macOS arm64 (Apple Silicon) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-mac-arm64:/project/node_modules `
+  electronuserland/builder:latest `
+  /bin/bash -c "cd /project && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder --mac zip --arm64 -c.mac.notarize=false -c.mac.identity=null"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-mac-arm64:/project/node_modules ^
+  electronuserland/builder:latest ^
+  /bin/bash -c "cd /project && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder --mac zip --arm64 -c.mac.notarize=false -c.mac.identity=null"
+```
+
+##### macOS 通用二进制 (Universal Binary) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-mac-universal:/project/node_modules `
+  electronuserland/builder:latest `
+  /bin/bash -c "cd /project && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder --mac zip --universal -c.mac.notarize=false -c.mac.identity=null"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-mac-universal:/project/node_modules ^
+  electronuserland/builder:latest ^
+  /bin/bash -c "cd /project && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder --mac zip --universal -c.mac.notarize=false -c.mac.identity=null"
+```
+
+#### 三平台同时构建命令
+
+##### 所有平台 x64 (64位) 构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-all-x64:/project/node_modules `
+  electronuserland/builder:wine `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot wine && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder -w --x64 -l AppImage deb tar.gz --x64 -m zip --x64 -c.mac.notarize=false -c.mac.identity=null"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-all-x64:/project/node_modules ^
+  electronuserland/builder:wine ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot wine && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder -w --x64 -l AppImage deb tar.gz --x64 -m zip --x64 -c.mac.notarize=false -c.mac.identity=null"
+```
+
+##### 所有平台多架构构建
+```bash
+# PowerShell
+docker run --rm -it `
+  -v ${PWD}:/project `
+  -v electron-node-modules-all-multi:/project/node_modules `
+  electronuserland/builder:wine `
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot wine && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder -w --x64 --ia32 -l AppImage deb tar.gz --x64 --arm64 -m zip --x64 --arm64 -c.mac.notarize=false -c.mac.identity=null"
+
+# CMD
+docker run --rm -it ^
+  -v %cd%:/project ^
+  -v electron-node-modules-all-multi:/project/node_modules ^
+  electronuserland/builder:wine ^
+  /bin/bash -c "cd /project && apt-get update && apt-get install -y libopenjp2-tools fakeroot wine && pnpm install && pnpm add dmg-license --save-dev && pnpm run build && pnpm exec electron-builder -w --x64 --ia32 -l AppImage deb tar.gz --x64 --arm64 -m zip --x64 --arm64 -c.mac.notarize=false -c.mac.identity=null"
+```
+
+#### 构建参数说明
+- **平台选择**：
+  - `-w, --win, --windows` - 构建Windows版本
+  - `-m, --mac, --macos` - 构建macOS版本
+  - `-l, --linux` - 构建Linux版本
+  - `-mwl` - 同时构建三个平台
+
+- **架构选择**：
+  - `--x64` - 构建64位版本
+  - `--arm64` - 构建ARM64架构版本(Apple Silicon/ARM Linux)
+  - `--armv7l` - 构建ARMv7架构版本(树莓派等)
+  - `--ia32` - 构建32位版本(仅Windows支持)
+  - `--universal` - 构建macOS通用二进制(同时支持Intel和Apple Silicon)
+
+- **常用格式**：
+  - Windows: `nsis`(安装包)、`portable`(便携版)、`zip`(压缩包)、`appx`(Microsoft Store)
+  - Linux: `AppImage`、`deb`(Debian/Ubuntu)、`rpm`(Fedora/CentOS)、`tar.gz`(通用)
+  - macOS: `dmg`(磁盘镜像)、`zip`(压缩包)、`pkg`(安装包)
+
+- **macOS特殊选项**：
+  - `-c.mac.notarize=false` - 禁用macOS公证步骤
+  - `-c.mac.identity=null` - 跳过签名步骤(在非macOS系统上构建时使用)
+
 ## 📦 项目结构
 
-```
-electron-vite/
+```electron-vite/
 ├── src/
 │   ├── main/           # 主进程代码
 │   ├── preload/        # 预加载脚本
